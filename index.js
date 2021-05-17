@@ -50,7 +50,7 @@ const runSearch = () => {
             viewDepartments();
             break;
           case 'Add Employee':
-            addDepartment();
+            addEmployee();
             break;
           case 'Add Role':
             addRole();
@@ -59,11 +59,11 @@ const runSearch = () => {
             addDepartment();
             break;
           case 'Update Employee Role':
-            updateRole();
+            updateEmployeeRole();
             break;
-          case 'Exit':
-            exit();
-            break;
+          case "Exit":
+              connection.end();
+              break;
           default:
             console.log(`Invalid action: ${answer.action}`);
             break;
@@ -83,6 +83,7 @@ const viewEmployees = () => {
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
+        runSearch();
     });
 
 };
@@ -93,6 +94,7 @@ const viewRoles = () => {
   connection.query(query, (err, res) => {
       if (err) throw err;
       console.table(res);
+      runSearch();
   });
 
 };
@@ -101,6 +103,120 @@ const viewDepartments = () => {
   connection.query(query, (err, res) => {
       if (err) throw err;
       console.table(res);
+      runSearch();
   });
 
 };
+const addDepartment = () =>{
+  inquirer
+  .prompt(
+    {
+    name: 'department',
+    type: 'input',
+    message: 'What is the name of the department are you adding?'
+  })
+  .then((answer) => {
+    const query = `insert into department SET ?`
+    connection.query(query, {
+      name: answer.department
+    })
+    runSearch();
+  })
+};
+
+const addRole = () =>{
+  inquirer
+  .prompt([
+    {
+    name: 'title',
+    type: 'input',
+    message: 'What is the title of the new role?'
+  },
+  {
+    name: 'salary',
+    type: 'input',
+    message: 'What is this salary of this role?'
+  },
+  {
+    name: 'departmentID',
+    type: 'input',
+    message: 'What is the department ID'
+  }
+  ])
+  
+  .then((answer) => {
+    const query = `insert into role SET ?`
+    connection.query(query, {
+      title: answer.title,
+      salary: answer.salary,
+      department_id: answer.departmentID
+    })
+    runSearch();
+  })
+};
+
+const addEmployee = () =>{
+  var roles = [];
+  
+  // connection.query("SELECT * FROM role", () => {
+  //  var roleChoices = roles.map(({ id, title }) => ({
+  //     name: title,
+  //     value: id
+  //   }))
+  // })
+  inquirer
+  .prompt([
+    {
+    name: 'firstName',
+    type: 'input',
+    message: 'What is the first name of the employee?'
+  },
+  {
+    name: 'lastName',
+    type: 'input',
+    message: 'What is last name of the employee?'
+  },
+  {
+    name: 'roleID',
+    type: 'input',
+    message: 'What is the role ID',
+    // choices: roleChoices
+  },
+  {
+     name: 'managerID',
+    type: 'input',
+    message: 'What is the manager ID'
+  }
+  ])
+  
+  .then((answer) => {
+    const query = `insert into employee SET ?`
+    connection.query(query, {
+      first_name: answer.firstName,
+      last_name: answer.lastName,
+      role_id: answer.roleID,
+      manager_id: answer.managerID
+
+    })
+    runSearch();
+  })
+};
+
+// const updateEmployeeRole = () =>{
+//   inquirer
+//   .prompt({
+//     name: 'action',
+//     type: 'list',
+//     message: 'What would you like to do?',
+//     choices: [
+//       'View all Employees',
+//       'View all Roles',
+//       'View all Departments',
+//       'Add Employee',
+//       'Add Role',
+//       'Add Department',
+//       'Update Employee Role',
+//       'Exit',
+//     ]
+//   })
+// }
